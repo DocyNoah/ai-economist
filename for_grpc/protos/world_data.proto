@@ -17,7 +17,7 @@ message MapData {
   Map1DArray stone_map = 3;
   Map1DArray wood_map = 4;
   Map1DArray water_map = 5;
-  Map1DArray house_maps = 6;
+  repeated Map1DArray house_maps = 6;
 }
 
 message Pair {

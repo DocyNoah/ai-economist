@@ -20,10 +20,12 @@ from protos import world_data_pb2
 from protos import world_data_pb2_grpc
 
 import numpy as np
+from utils.utils import get_visualize_data
 
 
 class WorldMapServicer(world_data_pb2_grpc.WorldMapServicer):
-    def __init__(self):
+    def __init__(self, env):
+        self.env = env
         self.call_count = 0
         print("Initialize the server")
 
@@ -31,17 +33,21 @@ class WorldMapServicer(world_data_pb2_grpc.WorldMapServicer):
         self.call_count += 1
         print("call_count: {}".format(self.call_count))
 
+        # get data
+        data = get_visualize_data(self.env)
+        _agent_locs, _world_size, _stone_map, _wood_map, _water_map, _house_maps = data
+
         # agent_locs
-        agent_locs = self._get_agnet_locs()
+        agent_locs = self._get_agnet_locs(_agent_locs)
 
         # world_size
         world_size = world_data_pb2.Pair(row=25, col=25)
 
         # map
-        stone_map = world_data_pb2.Map1DArray(f=self._get_map())
-        wood_map = world_data_pb2.Map1DArray(f=self._get_map())
-        water_map = world_data_pb2.Map1DArray(f=self._get_map())
-        house_maps = world_data_pb2.Map1DArray(f=self._get_map())
+        stone_map  = self.get_map_1d_array(_stone_map)
+        wood_map   = self.get_map_1d_array(_wood_map)
+        water_map  = self.get_map_1d_array(_water_map)
+        house_maps = self.get_maps_1d_array(_house_maps)
 
         map_data = world_data_pb2.MapData(
             agent_locs=agent_locs,
@@ -53,25 +59,26 @@ class WorldMapServicer(world_data_pb2_grpc.WorldMapServicer):
         )
         return map_data
 
-    def _get_agnet_locs(self):
-        agent_locs = [[11, 12], [21, 22]]
+    def _get_agnet_locs(self, agent_locs):
         for agent_loc in agent_locs:
             yield world_data_pb2.Pair(row=agent_loc[0], col=agent_loc[1])
 
-    def _get_map(self, _map: np.ndarray = None):
-        _map = np.array(
-            [[11, 12, 13],
-             [21, 22, 23],
-             [31, 32, 33]]
-        )
+    def get_map_1d_array(self, _map: np.ndarray):
+        return world_data_pb2.Map1DArray(f=self.get_map(_map))
+
+    def get_map(self, _map: np.ndarray):
         map_1d_array = _map.flatten()
         for num in map_1d_array:
             yield num
 
+    def get_maps_1d_array(self, _maps: np.ndarray):
+        for _map in _maps:
+            yield world_data_pb2.Map1DArray(f=self.get_map(_map))
 
-def serve(port):
+
+def serve(port, env):
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    world_data_pb2_grpc.add_WorldMapServicer_to_server(WorldMapServicer(), server)
+    world_data_pb2_grpc.add_WorldMapServicer_to_server(WorldMapServicer(env), server)
     server.add_insecure_port('[::]:{}'.format(port))
     server.start()
     server.wait_for_termination()
@@ -79,4 +86,4 @@ def serve(port):
 
 if __name__ == '__main__':
     logging.basicConfig()
-    serve(port=50051)
+    serve(port=50051, env=None)

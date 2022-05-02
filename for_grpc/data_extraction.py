@@ -1,8 +1,9 @@
+import matplotlib.pyplot as plt
+from numpy import iterable
 from ai_economist import foundation
 from utils.utils import *
 from utils.plotting import *
-import matplotlib.pyplot as plt
-from numpy import iterable
+import grpc_server
 
 
 def main(env_config, plot_every):
@@ -10,9 +11,10 @@ def main(env_config, plot_every):
 
     env = foundation.make_env_instance(**env_config)
     obs = env.reset(force_dense_logging=False)
-    for t in range(1000):
+    for t in range(100):
         actions = sample_random_actions(env, obs)
         obs, rew, done, info = env.step(actions)
+    grpc_server.serve(port=50051, env=env)
 
     np.set_printoptions(threshold=100000, linewidth=100)
     data = get_visualize_data(env)
@@ -27,7 +29,7 @@ def main(env_config, plot_every):
     print(type(world_size))
     print(world_size)
     print()
-    print("stone_locs:")
+    print("stone_map:")
     print(type(stone_map))
     print(stone_map.dtype)
     print(stone_map.shape)
@@ -52,8 +54,8 @@ def main(env_config, plot_every):
     print(house_maps)
     print()
 
-    fig, ax = plt.subplots(1, 1, figsize=(10, 10))
-    do_plot(env, ax, fig, t, show=True, save=True)
+    # fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+    # do_plot(env, ax, fig, t, show=True, save=True)
 
     # print_attr(env)
     # print_attr(env.world)
@@ -67,91 +69,91 @@ def main(env_config, plot_every):
 
     ########################################################
 
-    maps = env.world.maps
-    locs = [agent.loc for agent in env.world.agents]
-
-    world_size = np.array(maps.get("Wood")).shape
-    max_health = {"Wood": 1, "Stone": 1, "House": 1}
-
-    n_agents = len(locs)
-
-    tmp = np.zeros((3, world_size[0], world_size[1]))
-
-    scenario_entities = [k for k in maps.keys() if "source" not in k.lower()]
-    """
-    maps.keys()
-    ['Stone', 'Wood', 'House', 'Water', 'StoneSourceBlock', 'WoodSourceBlock']
-
-    scenario_entities
-    ['Stone', 'Wood', 'House', 'Water']
-    """
-    for entity in scenario_entities:
-        if entity == "House":
-            continue
-        elif resources.has(entity):  # Stone, Wood
-            if resources.get(entity).collectible:
-                """
-                None index는 단순히 차원 늘리는 용도, squeez와 용도가 같음
-                resources.get(entity).color                 | (3,)
-                resources.get(entity).color[:, None, None]  | (3, 1, 1)
-                np.array(maps.get(entity))                  | (25, 25)
-                np.array(maps.get(entity))[None]            | (1, 25, 25)
-                map_ = (3, 1, 1) * (1, 25, 25)              | (3, 25, 25)
-                """
-                map_ = (
-                    resources.get(entity).color[:, None, None]
-                    * np.array(maps.get(entity))[None]
-                )
-                map_ /= max_health[entity]
-                tmp += map_
-                print("resources.get(entity).collectible")
-                print(entity)
-                print("resources.get(entity).color.shape:", resources.get(entity).color.shape)
-                print("resources.get(entity).color[:, None, None].shape:", resources.get(entity).color[:, None, None].shape)
-                print("np.array(maps.get(entity)).shape:", np.array(maps.get(entity)).shape)
-                print("np.array(maps.get(entity))[None].shape:", np.array(maps.get(entity))[None].shape)
-                print("map_.shape:", map_.shape)
-                print("type(maps.get(entity)):", type(maps.get(entity)))
-                print()
-        elif landmarks.has(entity):
-            map_ = (
-                landmarks.get(entity).color[:, None, None]
-                * np.array(maps.get(entity))[None]
-            )
-            tmp += map_
-            print("landmarks.has(entity)")
-            print(entity)
-            print("landmarks.get(entity).color.shape:", landmarks.get(entity).color.shape)
-            print("landmarks.get(entity).color[:, None, None].shape:", landmarks.get(entity).color[:, None, None].shape)
-            print()
-        else:
-            continue
-
-    """type(maps): Maps class"""
-    if isinstance(maps, dict):
-        house_idx = np.array(maps.get("House")["owner"])
-        house_health = np.array(maps.get("House")["health"])
-    else:
-        house_idx = maps.get("House", owner=True)
-        house_health = maps.get("House")
-    print("type(house_idx):", type(house_idx))
-    print("house_idx.shape:", house_idx.shape)
-    print()
-
-    cmap = plt.get_cmap("jet", n_agents)
-    cmap_order = list(range(n_agents))
-    for i in range(n_agents):
-        houses = house_health * (house_idx == cmap_order[i])
-        print("houses.shape:", houses.shape)
-        agent = np.zeros_like(houses)
-        agent += houses
-        print("agent.shape:", agent.shape)
-        print("agent[None].shape:", agent[None].shape)
-        print(cmap(i))
-        col = np.array(cmap(i)[:3])
-        map_ = col[:, None, None] * agent[None]
-        tmp += map_
-        print()
+    # maps = env.world.maps
+    # locs = [agent.loc for agent in env.world.agents]
+    #
+    # world_size = np.array(maps.get("Wood")).shape
+    # max_health = {"Wood": 1, "Stone": 1, "House": 1}
+    #
+    # n_agents = len(locs)
+    #
+    # tmp = np.zeros((3, world_size[0], world_size[1]))
+    #
+    # scenario_entities = [k for k in maps.keys() if "source" not in k.lower()]
+    # """
+    # maps.keys()
+    # ['Stone', 'Wood', 'House', 'Water', 'StoneSourceBlock', 'WoodSourceBlock']
+    #
+    # scenario_entities
+    # ['Stone', 'Wood', 'House', 'Water']
+    # """
+    # for entity in scenario_entities:
+    #     if entity == "House":
+    #         continue
+    #     elif resources.has(entity):  # Stone, Wood
+    #         if resources.get(entity).collectible:
+    #             """
+    #             None index는 단순히 차원 늘리는 용도, squeez와 용도가 같음
+    #             resources.get(entity).color                 | (3,)
+    #             resources.get(entity).color[:, None, None]  | (3, 1, 1)
+    #             np.array(maps.get(entity))                  | (25, 25)
+    #             np.array(maps.get(entity))[None]            | (1, 25, 25)
+    #             map_ = (3, 1, 1) * (1, 25, 25)              | (3, 25, 25)
+    #             """
+    #             map_ = (
+    #                 resources.get(entity).color[:, None, None]
+    #                 * np.array(maps.get(entity))[None]
+    #             )
+    #             map_ /= max_health[entity]
+    #             tmp += map_
+    #             print("resources.get(entity).collectible")
+    #             print(entity)
+    #             print("resources.get(entity).color.shape:", resources.get(entity).color.shape)
+    #             print("resources.get(entity).color[:, None, None].shape:", resources.get(entity).color[:, None, None].shape)
+    #             print("np.array(maps.get(entity)).shape:", np.array(maps.get(entity)).shape)
+    #             print("np.array(maps.get(entity))[None].shape:", np.array(maps.get(entity))[None].shape)
+    #             print("map_.shape:", map_.shape)
+    #             print("type(maps.get(entity)):", type(maps.get(entity)))
+    #             print()
+    #     elif landmarks.has(entity):
+    #         map_ = (
+    #             landmarks.get(entity).color[:, None, None]
+    #             * np.array(maps.get(entity))[None]
+    #         )
+    #         tmp += map_
+    #         print("landmarks.has(entity)")
+    #         print(entity)
+    #         print("landmarks.get(entity).color.shape:", landmarks.get(entity).color.shape)
+    #         print("landmarks.get(entity).color[:, None, None].shape:", landmarks.get(entity).color[:, None, None].shape)
+    #         print()
+    #     else:
+    #         continue
+    #
+    # """type(maps): Maps class"""
+    # if isinstance(maps, dict):
+    #     house_idx = np.array(maps.get("House")["owner"])
+    #     house_health = np.array(maps.get("House")["health"])
+    # else:
+    #     house_idx = maps.get("House", owner=True)
+    #     house_health = maps.get("House")
+    # print("type(house_idx):", type(house_idx))
+    # print("house_idx.shape:", house_idx.shape)
+    # print()
+    #
+    # cmap = plt.get_cmap("jet", n_agents)
+    # cmap_order = list(range(n_agents))
+    # for i in range(n_agents):
+    #     houses = house_health * (house_idx == cmap_order[i])
+    #     print("houses.shape:", houses.shape)
+    #     agent = np.zeros_like(houses)
+    #     agent += houses
+    #     print("agent.shape:", agent.shape)
+    #     print("agent[None].shape:", agent[None].shape)
+    #     print(cmap(i))
+    #     col = np.array(cmap(i)[:3])
+    #     map_ = col[:, None, None] * agent[None]
+    #     tmp += map_
+    #     print()
 
 
 if __name__ == "__main__":
