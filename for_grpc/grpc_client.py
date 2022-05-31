@@ -27,12 +27,13 @@ def run(server_ip="localhost", server_port=50051):
     server_ip_port = "{}:{}".format(server_ip, server_port)
 
     with grpc.insecure_channel(server_ip_port) as channel:
-        stub = world_data_pb2_grpc.WorldMapStub(channel)
+        stub = world_data_pb2_grpc.AIEconomistStub(channel)
         map_data = stub.GetWorldMap(world_data_pb2.Time(step=10))
 
     ################
     #  agent_locs  #
     ################
+    print("agent_locs")
     # print(map_data.agent_locs)
     agent_locs = []
     for agent_loc in map_data.agent_locs:
@@ -42,6 +43,7 @@ def run(server_ip="localhost", server_port=50051):
     ################
     #  world_size  #
     ################
+    print("world_size")
     # print(map_data.world_size)
     world_size = (map_data.world_size.row, map_data.world_size.col)
     print(world_size)
@@ -49,6 +51,7 @@ def run(server_ip="localhost", server_port=50051):
     ###############
     #  stone_map  #
     ###############
+    print("stone_map")
     # print(map_data.stone_map)
     stone_map = []
     for i in map_data.stone_map.f:
@@ -60,6 +63,7 @@ def run(server_ip="localhost", server_port=50051):
     ##############
     #  wood_map  #
     ##############
+    print("wood_map")
     # print(map_data.wood_map)
     wood_map = []
     for i in map_data.wood_map.f:
@@ -71,7 +75,7 @@ def run(server_ip="localhost", server_port=50051):
     ###############
     #  water_map  #
     ###############
-    # print(map_data.water_map)
+    print("water_map")
     water_map = []
     for i in map_data.water_map.f:
         water_map.append(i)
@@ -82,7 +86,7 @@ def run(server_ip="localhost", server_port=50051):
     ###############
     #  house_map  #
     ###############
-    # print(map_data.house_maps)
+    print("house_maps")
     house_maps = []
     for house_map in map_data.house_maps:
         for i in house_map.f:

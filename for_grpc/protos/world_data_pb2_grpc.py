@@ -2,10 +2,11 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import for_grpc.protos.world_data_pb2 as world__data__pb2
+from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
+from for_grpc.protos import world_data_pb2 as world__data__pb2
 
 
-class WorldMapStub(object):
+class AIEconomistStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -15,13 +16,18 @@ class WorldMapStub(object):
             channel: A grpc.Channel.
         """
         self.GetWorldMap = channel.unary_unary(
-                '/WorldMap/GetWorldMap',
+                '/AIEconomist/GetWorldMap',
                 request_serializer=world__data__pb2.Time.SerializeToString,
                 response_deserializer=world__data__pb2.MapData.FromString,
                 )
+        self.SendWorldMap = channel.unary_unary(
+                '/AIEconomist/SendWorldMap',
+                request_serializer=world__data__pb2.MapData.SerializeToString,
+                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                )
 
 
-class WorldMapServicer(object):
+class AIEconomistServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def GetWorldMap(self, request, context):
@@ -30,22 +36,33 @@ class WorldMapServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def SendWorldMap(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
 
-def add_WorldMapServicer_to_server(servicer, server):
+
+def add_AIEconomistServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'GetWorldMap': grpc.unary_unary_rpc_method_handler(
                     servicer.GetWorldMap,
                     request_deserializer=world__data__pb2.Time.FromString,
                     response_serializer=world__data__pb2.MapData.SerializeToString,
             ),
+            'SendWorldMap': grpc.unary_unary_rpc_method_handler(
+                    servicer.SendWorldMap,
+                    request_deserializer=world__data__pb2.MapData.FromString,
+                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'WorldMap', rpc_method_handlers)
+            'AIEconomist', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
  # This class is part of an EXPERIMENTAL API.
-class WorldMap(object):
+class AIEconomist(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
@@ -59,8 +76,25 @@ class WorldMap(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/WorldMap/GetWorldMap',
+        return grpc.experimental.unary_unary(request, target, '/AIEconomist/GetWorldMap',
             world__data__pb2.Time.SerializeToString,
             world__data__pb2.MapData.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def SendWorldMap(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/AIEconomist/SendWorldMap',
+            world__data__pb2.MapData.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

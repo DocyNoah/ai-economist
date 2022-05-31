@@ -1,74 +1,99 @@
 import matplotlib.pyplot as plt
 from numpy import iterable
+from multiprocessing import Pipe, Process, Queue
+
 from ai_economist import foundation
 from utils.utils import *
 from utils.plotting import *
-import grpc_server
+# import grpc_server
+import client_for_send
+
+import grpc
+from protos import world_data_pb2
+from protos import world_data_pb2_grpc
+
+import time
 
 
 def main(env_config, plot_every):
     print()
 
+    # # server
+    # server_queue = Queue()
+    # server = grpc_server.AIEconomistServer(port=50051, queue=server_queue)
+    # server.start()
+
+    # client
+    server_ip = "localhost"
+    server_port = 50051
+    client = client_for_send.EcoClient(server_ip, server_port)
+
     env = foundation.make_env_instance(**env_config)
     obs = env.reset(force_dense_logging=False)
-    for t in range(100):
+    for t in range(10000):
         actions = sample_random_actions(env, obs)
         obs, rew, done, info = env.step(actions)
-    grpc_server.serve(port=50051, env=env)
+        data = get_visualize_data(env)
+        # server_queue.put_nowait(data)
+        client.send_data(data)
+        print("Send Data", t)
+        time.sleep(1)
 
-    np.set_printoptions(threshold=100000, linewidth=100)
-    data = get_visualize_data(env)
-    agent_locs, world_size, stone_map, wood_map, water_map, house_maps = data
-    print("agent_locs:")
-    print(type(agent_locs))
-    print(agent_locs.dtype)
-    print(agent_locs)
-    print()
+    # server.wait_for_termination()
 
-    print("world_size:")
-    print(type(world_size))
-    print(world_size)
-    print()
-    print("stone_map:")
-    print(type(stone_map))
-    print(stone_map.dtype)
-    print(stone_map.shape)
-    print(stone_map)
-    print()
-    print("wood_map:")
-    print(type(wood_map))
-    print(wood_map.dtype)
-    print(wood_map.shape)
-    print(wood_map)
-    print()
-    print("water_map:")
-    print(type(water_map))
-    print(water_map.dtype)
-    print(water_map.shape)
-    print(water_map)
-    print()
-    print("house_maps:")
-    print(type(house_maps))
-    print(house_maps.dtype)
-    print(house_maps.shape)
-    print(house_maps)
-    print()
-
-    # fig, ax = plt.subplots(1, 1, figsize=(10, 10))
-    # do_plot(env, ax, fig, t, show=True, save=True)
-
-    # print_attr(env)
-    # print_attr(env.world)
-    # print_attr(env.world.maps)
-
-    # print(env.n_agents)
-    # print(env.all_agents[0])
-    # print(env.get_agent(0))
-    # print(env.world.agents[0])
+    # np.set_printoptions(threshold=100000, linewidth=100)
+    # data = get_visualize_data(env)
+    # agent_locs, world_size, stone_map, wood_map, water_map, house_maps = data
+    # print("agent_locs:")
+    # print(type(agent_locs))
+    # print(agent_locs.dtype)
+    # print(agent_locs)
     # print()
-
-    ########################################################
-
+    #
+    # print("world_size:")
+    # print(type(world_size))
+    # print(world_size)
+    # print()
+    # print("stone_map:")
+    # print(type(stone_map))
+    # print(stone_map.dtype)
+    # print(stone_map.shape)
+    # print(stone_map)
+    # print()
+    # print("wood_map:")
+    # print(type(wood_map))
+    # print(wood_map.dtype)
+    # print(wood_map.shape)
+    # print(wood_map)
+    # print()
+    # print("water_map:")
+    # print(type(water_map))
+    # print(water_map.dtype)
+    # print(water_map.shape)
+    # print(water_map)
+    # print()
+    # print("house_maps:")
+    # print(type(house_maps))
+    # print(house_maps.dtype)
+    # print(house_maps.shape)
+    # print(house_maps)
+    # print()
+    #
+    # # fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+    # # do_plot(env, ax, fig, t, show=True, save=True)
+    #
+    # # print_attr(env)
+    # # print_attr(env.world)
+    # # print_attr(env.world.maps)
+    #
+    # # print(env.n_agents)
+    # # print(env.all_agents[0])
+    # # print(env.get_agent(0))
+    # # print(env.world.agents[0])
+    # # print()
+    #
+    # ########################################################
+    #
     # maps = env.world.maps
     # locs = [agent.loc for agent in env.world.agents]
     #

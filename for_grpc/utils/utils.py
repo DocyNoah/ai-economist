@@ -57,6 +57,7 @@ def get_visualize_data(env):
     """
     # return 1: agent_locs
     agent_locs = np.array([agent.loc for agent in env.world.agents])
+    print(agent_locs)
     n_agents = len(agent_locs)
 
     maps = env.world.maps

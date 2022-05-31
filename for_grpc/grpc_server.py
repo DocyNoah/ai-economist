@@ -20,12 +20,13 @@ from protos import world_data_pb2
 from protos import world_data_pb2_grpc
 
 import numpy as np
+import time
 from utils.utils import get_visualize_data
 
 
-class WorldMapServicer(world_data_pb2_grpc.WorldMapServicer):
-    def __init__(self, env):
-        self.env = env
+class AIEconomistDataCenter(world_data_pb2_grpc.AIEconomistServicer):
+    def __init__(self, queue):
+        self.queue = queue
         self.call_count = 0
         print("Initialize the server")
 
@@ -34,7 +35,12 @@ class WorldMapServicer(world_data_pb2_grpc.WorldMapServicer):
         print("call_count: {}".format(self.call_count))
 
         # get data
-        data = get_visualize_data(self.env)
+        while self.queue.empty():
+            time.sleep(0.5)
+
+        data = self.queue.get()
+        # data = get_visualize_data(self.env)
+
         _agent_locs, _world_size, _stone_map, _wood_map, _water_map, _house_maps = data
 
         # agent_locs
@@ -78,12 +84,34 @@ class WorldMapServicer(world_data_pb2_grpc.WorldMapServicer):
 
 def serve(port, env):
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    world_data_pb2_grpc.add_WorldMapServicer_to_server(WorldMapServicer(env), server)
+    world_data_pb2_grpc.add_WorldMapServicer_to_server(
+        AIEconomistDataCenter(env), server
+    )
     server.add_insecure_port('[::]:{}'.format(port))
     server.start()
-    server.wait_for_termination()
+    # server.wait_for_termination()
+
+
+class AIEconomistServer:
+    def __init__(self, port, queue):
+        self.server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+        world_data_pb2_grpc.add_AIEconomistServicer_to_server(
+            AIEconomistDataCenter(queue), self.server
+        )
+        self.server.add_insecure_port('[::]:{}'.format(port))
+
+    def start(self):
+        self.server.start()
+
+    def wait_for_termination(self):
+        self.server.wait_for_termination()
 
 
 if __name__ == '__main__':
-    logging.basicConfig()
-    serve(port=50051, env=None)
+    # logging.basicConfig()
+    # serve(port=50051, env=None)
+
+    server = AIEconomistServer(port=50051, env=None)
+    server.start()
+    print("server start")
+    server.wait_for_termination()

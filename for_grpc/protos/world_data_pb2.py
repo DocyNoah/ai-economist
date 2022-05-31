@@ -12,9 +12,10 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
+from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10world_data.proto\"\x14\n\x04Time\x12\x0c\n\x04step\x18\x01 \x01(\x05\"\xbf\x01\n\x07MapData\x12\x19\n\nagent_locs\x18\x01 \x03(\x0b\x32\x05.Pair\x12\x19\n\nworld_size\x18\x02 \x01(\x0b\x32\x05.Pair\x12\x1e\n\tstone_map\x18\x03 \x01(\x0b\x32\x0b.Map1DArray\x12\x1d\n\x08wood_map\x18\x04 \x01(\x0b\x32\x0b.Map1DArray\x12\x1e\n\twater_map\x18\x05 \x01(\x0b\x32\x0b.Map1DArray\x12\x1f\n\nhouse_maps\x18\x06 \x03(\x0b\x32\x0b.Map1DArray\" \n\x04Pair\x12\x0b\n\x03row\x18\x01 \x01(\x05\x12\x0b\n\x03\x63ol\x18\x02 \x01(\x05\"\x17\n\nMap1DArray\x12\t\n\x01\x66\x18\x01 \x03(\x01\x32,\n\x08WorldMap\x12 \n\x0bGetWorldMap\x12\x05.Time\x1a\x08.MapData\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10world_data.proto\x1a\x1bgoogle/protobuf/empty.proto\"\x14\n\x04Time\x12\x0c\n\x04step\x18\x01 \x01(\x05\"\xbf\x01\n\x07MapData\x12\x19\n\nagent_locs\x18\x01 \x03(\x0b\x32\x05.Pair\x12\x19\n\nworld_size\x18\x02 \x01(\x0b\x32\x05.Pair\x12\x1e\n\tstone_map\x18\x03 \x01(\x0b\x32\x0b.Map1DArray\x12\x1d\n\x08wood_map\x18\x04 \x01(\x0b\x32\x0b.Map1DArray\x12\x1e\n\twater_map\x18\x05 \x01(\x0b\x32\x0b.Map1DArray\x12\x1f\n\nhouse_maps\x18\x06 \x03(\x0b\x32\x0b.Map1DArray\" \n\x04Pair\x12\x0b\n\x03row\x18\x01 \x01(\x05\x12\x0b\n\x03\x63ol\x18\x02 \x01(\x05\"\x17\n\nMap1DArray\x12\t\n\x01\x66\x18\x01 \x03(\x01\x32\x63\n\x0b\x41IEconomist\x12 \n\x0bGetWorldMap\x12\x05.Time\x1a\x08.MapData\"\x00\x12\x32\n\x0cSendWorldMap\x12\x08.MapData\x1a\x16.google.protobuf.Empty\"\x00\x62\x06proto3')
 
 
 
@@ -50,18 +51,18 @@ Map1DArray = _reflection.GeneratedProtocolMessageType('Map1DArray', (_message.Me
   })
 _sym_db.RegisterMessage(Map1DArray)
 
-_WORLDMAP = DESCRIPTOR.services_by_name['WorldMap']
+_AIECONOMIST = DESCRIPTOR.services_by_name['AIEconomist']
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
-  _TIME._serialized_start=20
-  _TIME._serialized_end=40
-  _MAPDATA._serialized_start=43
-  _MAPDATA._serialized_end=234
-  _PAIR._serialized_start=236
-  _PAIR._serialized_end=268
-  _MAP1DARRAY._serialized_start=270
-  _MAP1DARRAY._serialized_end=293
-  _WORLDMAP._serialized_start=295
-  _WORLDMAP._serialized_end=339
+  _TIME._serialized_start=49
+  _TIME._serialized_end=69
+  _MAPDATA._serialized_start=72
+  _MAPDATA._serialized_end=263
+  _PAIR._serialized_start=265
+  _PAIR._serialized_end=297
+  _MAP1DARRAY._serialized_start=299
+  _MAP1DARRAY._serialized_end=322
+  _AIECONOMIST._serialized_start=324
+  _AIECONOMIST._serialized_end=423
 # @@protoc_insertion_point(module_scope)
