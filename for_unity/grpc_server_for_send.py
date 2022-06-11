@@ -21,7 +21,6 @@ from protos import world_data_pb2_grpc
 
 import numpy as np
 import time
-from utils.utils import get_visualize_data
 
 
 class AIEconomistDataCenter(world_data_pb2_grpc.AIEconomistServicer):
@@ -82,10 +81,10 @@ class AIEconomistDataCenter(world_data_pb2_grpc.AIEconomistServicer):
             yield world_data_pb2.Map1DArray(f=self.get_map(_map))
 
 
-def serve(port, env):
+def serve(port, queue):
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-    world_data_pb2_grpc.add_WorldMapServicer_to_server(
-        AIEconomistDataCenter(env), server
+    world_data_pb2_grpc.add_AIEconomistServicer_to_server(
+        AIEconomistDataCenter(queue), server
     )
     server.add_insecure_port('[::]:{}'.format(port))
     server.start()
@@ -107,11 +106,11 @@ class AIEconomistServer:
         self.server.wait_for_termination()
 
 
-if __name__ == '__main__':
-    # logging.basicConfig()
-    # serve(port=50051, env=None)
-
-    server = AIEconomistServer(port=50051, env=None)
-    server.start()
-    print("server start")
-    server.wait_for_termination()
+# if __name__ == '__main__':
+#     # logging.basicConfig()
+#     # serve(port=50051, env=None)
+#
+#     server = AIEconomistServer(port=50051, env=None)
+#     server.start()
+#     print("server start")
+#     server.wait_for_termination()

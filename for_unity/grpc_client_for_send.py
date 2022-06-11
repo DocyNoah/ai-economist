@@ -58,13 +58,15 @@ class EcoClient:
         )
         return map_data
 
-    def _get_agnet_locs(self, agent_locs):
+    @staticmethod
+    def _get_agent_locs(self, agent_locs):
         for agent_loc in agent_locs:
             yield world_data_pb2.Pair(row=agent_loc[0], col=agent_loc[1])
 
     def _get_map_1d_array(self, _map: np.ndarray):
         return world_data_pb2.Map1DArray(f=self._get_map(_map))
 
+    @staticmethod
     def _get_map(self, _map: np.ndarray):
         map_1d_array = _map.flatten()
         for num in map_1d_array:

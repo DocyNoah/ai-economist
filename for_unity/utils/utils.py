@@ -26,6 +26,7 @@ def sample_random_actions(env, obs):
 
     return actions
 
+
 def print_attr(cls):
     for element in dir(cls):
         if element.startswith("_"):
@@ -44,7 +45,34 @@ def print_attr(cls):
         print()
 
 
-def get_visualize_data(env):
+def print_type(var, inner=0):
+    print_with_tap("type:", type(var), n_tap=inner)
+    if isinstance(var, np.ndarray) and var.ndim > 1:
+        print_with_tap("shape:", var.shape, n_tap=inner)
+        print_with_tap("dtype:", var.dtype, n_tap=inner)
+        if var.ndim <= 1:
+            print_with_tap("len:", len(var), n_tap=inner)
+    elif isinstance(var, dict):
+        inner += 1
+        for k, v in var.items():
+            print_with_tap("key:", k, n_tap=inner)
+            print_type(v, inner)
+    elif iterable(var):
+        print_with_tap("len:", len(var), n_tap=inner)
+        print_with_tap("dtype:", type(var[0]), n_tap=inner)
+        if len(var) < 20:
+            print_with_tap(var, n_tap=inner)
+    else:
+        print_with_tap(var, n_tap=inner)
+    print()
+
+
+def print_with_tap(*args, n_tap=0):
+    print("\t" * n_tap, end="")
+    print(*args)
+
+
+def get_map_data(env):
     """
     Return
     ------
@@ -55,13 +83,18 @@ def get_visualize_data(env):
     water_map : ndarray (25, 25) float64
     house_maps : ndarray (4, 25, 25) float64
     """
+    agent_locs = None
+    world_size = None
+    stone_map = None
+    wood_map = None
+    water_map = None
+    house_maps = None
+
     # return 1: agent_locs
     agent_locs = np.array([agent.loc for agent in env.world.agents])
-    print(agent_locs)
-    n_agents = len(agent_locs)
 
-    maps = env.world.maps
     # return 2: world_size
+    maps = env.world.maps
     world_size = np.array(maps.get("Wood")).shape
 
     scenario_entities = [k for k in maps.keys() if "source" not in k.lower()]
@@ -88,10 +121,9 @@ def get_visualize_data(env):
         else:
             raise ValueError("Unknown Entity")
 
-    house_idx = maps.get("House", owner=True)
-    agent_idx = tuple(range(n_agents))
-
     # return 6: house_maps
+    house_idx = maps.get("House", owner=True)
+    n_agents = len(agent_locs)
     house_maps = np.zeros(shape=(n_agents, *world_size))
     for i in range(n_agents):
         house_maps[i][house_idx == i] = 1
@@ -102,5 +134,38 @@ def get_visualize_data(env):
         stone_map,
         wood_map,
         water_map,
-        house_maps,
+        house_maps
     )
+
+
+def print_map_data_shape(map_data):
+    # agents_locs : ndarray (2, 4) int32
+    # world_size : tuple (2,)
+    # stone_map : ndarray (25, 25) float64
+    # wood_map : ndarray (25, 25) float64
+    # water_map : ndarray (25, 25) float64
+    # house_maps : ndarray (4, 25, 25) float64
+    agent_locs, world_size, stone_map, wood_map, water_map, house_maps = map_data
+    print("agent_locs")
+    print_type(agent_locs)
+    print()
+
+    print("world_size")
+    print_type(world_size)
+    print()
+
+    print("stone_map")
+    print_type(stone_map)
+    print()
+
+    print("wood_map")
+    print_type(wood_map)
+    print()
+
+    print("water_map")
+    print_type(water_map)
+    print()
+
+    print("house_maps")
+    print_type(house_maps)
+    print()
