@@ -1,18 +1,19 @@
 from ai_economist import foundation
-from utils.utils import *
-import env_config
+from docy.utils.utils import *
+from docy.env_config import env_config
 import time
 
-import grpc_client_for_send
+import grpc_server_for_send
+from multiprocessing import Queue
 
 
 def main(env_config):
     print()
 
-    # client
-    server_ip = "localhost"
-    server_port = 50051
-    client = client_for_send.EcoClient(server_ip, server_port)
+    # server
+    server_queue = Queue()
+    server = grpc_server_for_send.AIEconomistServer(port=50051, queue=server_queue)
+    server.start()
 
     env = foundation.make_env_instance(**env_config)
     obs = env.reset(force_dense_logging=False)
@@ -20,8 +21,8 @@ def main(env_config):
         actions = sample_random_actions(env, obs)
         obs, rew, done, info = env.step(actions)
         data = get_map_data(env)
-        client.send_data(data)
-        print("Send Data", t)
+        server_queue.put_nowait(data)
+        print("send_buffer.add(data)", t)
         time.sleep(1)
 
 

@@ -1,8 +1,9 @@
 from ai_economist import foundation
-from for_unity.socket_server_for_send import ServerSocket, map_data_to_msg
-from utils.utils import *
-from env_config import env_config
+from docy.utils.utils import *
+from docy.env_config import env_config
 import time
+
+from docy.for_unity.about_socket.socket_server_for_send import ServerSocket, map_data_to_msg
 
 
 def main(env_config):
@@ -19,7 +20,7 @@ def main(env_config):
 
         map_data = get_map_data(env)
         msg = map_data_to_msg(map_data)
-        print(t, msg)
+        print(str(t) + ": " + str(len(msg)) + ": " + str(msg))
 
         server_socket.send(msg)
 

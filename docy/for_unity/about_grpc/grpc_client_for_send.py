@@ -14,11 +14,8 @@
 
 from __future__ import print_function
 
-import logging
-
 import grpc
-from protos import world_data_pb2
-from protos import world_data_pb2_grpc
+from docy.for_unity.about_grpc import world_data_pb2_grpc, world_data_pb2
 
 import numpy as np
 
@@ -37,7 +34,7 @@ class EcoClient:
         _agent_locs, _world_size, _stone_map, _wood_map, _water_map, _house_maps = data
 
         # agent_locs
-        agent_locs = self._get_agnet_locs(_agent_locs)
+        agent_locs = self._get_agent_locs(_agent_locs)
 
         # world_size
         world_size = world_data_pb2.Pair(row=25, col=25)
@@ -59,7 +56,7 @@ class EcoClient:
         return map_data
 
     @staticmethod
-    def _get_agent_locs(self, agent_locs):
+    def _get_agent_locs(agent_locs):
         for agent_loc in agent_locs:
             yield world_data_pb2.Pair(row=agent_loc[0], col=agent_loc[1])
 
@@ -67,7 +64,7 @@ class EcoClient:
         return world_data_pb2.Map1DArray(f=self._get_map(_map))
 
     @staticmethod
-    def _get_map(self, _map: np.ndarray):
+    def _get_map(_map: np.ndarray):
         map_1d_array = _map.flatten()
         for num in map_1d_array:
             yield num

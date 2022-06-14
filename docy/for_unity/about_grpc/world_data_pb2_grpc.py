@@ -3,7 +3,7 @@
 import grpc
 
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
-from for_unity.protos import world_data_pb2 as world__data__pb2
+import world_data_pb2 as world__data__pb2
 
 
 class AIEconomistStub(object):

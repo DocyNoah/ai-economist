@@ -13,11 +13,9 @@
 # limitations under the License.
 
 from concurrent import futures
-import logging
 
 import grpc
-from protos import world_data_pb2
-from protos import world_data_pb2_grpc
+from docy.for_unity.about_grpc import world_data_pb2_grpc, world_data_pb2
 
 import numpy as np
 import time
@@ -43,7 +41,7 @@ class AIEconomistDataCenter(world_data_pb2_grpc.AIEconomistServicer):
         _agent_locs, _world_size, _stone_map, _wood_map, _water_map, _house_maps = data
 
         # agent_locs
-        agent_locs = self._get_agnet_locs(_agent_locs)
+        agent_locs = self._get_agent_locs(_agent_locs)
 
         # world_size
         world_size = world_data_pb2.Pair(row=25, col=25)
@@ -64,14 +62,16 @@ class AIEconomistDataCenter(world_data_pb2_grpc.AIEconomistServicer):
         )
         return map_data
 
-    def _get_agnet_locs(self, agent_locs):
+    @staticmethod
+    def _get_agent_locs(agent_locs):
         for agent_loc in agent_locs:
             yield world_data_pb2.Pair(row=agent_loc[0], col=agent_loc[1])
 
     def get_map_1d_array(self, _map: np.ndarray):
         return world_data_pb2.Map1DArray(f=self.get_map(_map))
 
-    def get_map(self, _map: np.ndarray):
+    @staticmethod
+    def get_map(_map: np.ndarray):
         map_1d_array = _map.flatten()
         for num in map_1d_array:
             yield num

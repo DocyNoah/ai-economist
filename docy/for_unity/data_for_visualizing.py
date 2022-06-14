@@ -1,34 +1,36 @@
 from ai_economist import foundation
-from utils.utils import *
-from utils.plotting import *
+from docy.utils.utils import *
+from docy.utils.plotting import *
+import matplotlib.pyplot as plt
 
-import time
 
-
-def main(env_config):
-    print()
+def main(env_config, plot_every, show, save):
+    fig, ax = plt.subplots(1, 1, figsize=(10, 10))
 
     env = foundation.make_env_instance(**env_config)
+    ptr_env_init = env
     obs = env.reset(force_dense_logging=False)
-    for t in range(10000):
+    ptr_env_reset = env
+
+    for t in range(env.episode_length):
         actions = sample_random_actions(env, obs)
         obs, rew, done, info = env.step(actions)
-        # print("obs['0']")
-        # print_type(obs['0'])
-        # print("obs['0']")
-        # print_type(obs['0']["Build-build_payment"])
-        # print_type(obs['1']["Build-build_payment"])
-        # print_type(obs['2']["Build-build_payment"])
-        # print_type(obs['3']["Build-build_payment"])
-        map_data = get_map_data(env)
-        print_map_data_shape(map_data)
-        # print(map_data)
-        time.sleep(1)
+        ptr_env_step = env
+
+    print(ptr_env_init)
+    print(ptr_env_reset)
+    print(ptr_env_step)
+    #     if ((t + 1) % plot_every) == 0:
+    #         do_plot(env, ax, fig, t, show, save)
+    #
+    # if ((t + 1) % plot_every) != 0:
+    #     do_plot(env, ax, fig, t, show, save)
 
 
 if __name__ == "__main__":
     # Define the configuration of the environment that will be built
 
+    episode_length = 1000
     env_config = {
         # ===== SCENARIO CLASS =====
         # Which Scenario class to use: the class's name in the Scenario Registry (foundation.scenarios).
@@ -59,7 +61,7 @@ if __name__ == "__main__":
         # kwargs that are used by every Scenario class (i.e. defined in BaseEnvironment)
         'n_agents': 4,  # Number of non-planner agents (must be > 1)
         'world_size': [25, 25],  # [Height, Width] of the env world
-        'episode_length': 1000,  # Number of timesteps per episode
+        'episode_length': episode_length,  # Number of timesteps per episode
 
         # In multi-action-mode, the policy selects an action for each action subspace (defined in component code).
         # Otherwise, the policy selects only 1 action.
@@ -74,4 +76,10 @@ if __name__ == "__main__":
         'flatten_masks': True,
     }
 
-    main(env_config)
+    plot_every = 100
+    show = True
+    # show = False
+    # save = True
+    save = False
+
+    main(env_config, plot_every, show, save)

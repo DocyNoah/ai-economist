@@ -17,8 +17,7 @@ from __future__ import print_function
 import logging
 
 import grpc
-from protos import world_data_pb2
-from protos import world_data_pb2_grpc
+from docy.for_unity.about_grpc import world_data_pb2_grpc, world_data_pb2
 
 import numpy as np
 
