@@ -1,5 +1,5 @@
 from ai_economist import foundation
-from utils.utils import *
+from utils.utils import print_type, sample_random_actions
 import time
 
 from docy.env_config import env_config
@@ -10,11 +10,12 @@ def main(env_config):
 
     env = foundation.make_env_instance(**env_config)
     obs = env.reset(force_dense_logging=False)
+    print_type(obs)
     for t in range(10000):
         actions = sample_random_actions(env, obs)
         obs, rew, done, info = env.step(actions)
 
-        # # obs
+        # obs
         # print("obs")
         # print_type(obs)
 
@@ -26,7 +27,7 @@ def main(env_config):
         # map_data = get_map_data(env)
         # print_map_data_shape(map_data)
 
-        # env
+        # # env
         # print("env")
         # print_attr(env)
 
