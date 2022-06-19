@@ -97,7 +97,7 @@ class BaseAgent:
     def _incorporate_component(self, action_name, n):
         extra_n = (
             1 if self.multi_action_mode else 0
-        )  # Each sub-action has a NO-OP in multi action mode)
+        )  # Each sub-action has a NO-OP in multi action mode
         self.action[action_name] = 0
         self.action_dim[action_name] = n + extra_n
         self._action_names.append(action_name)
@@ -168,7 +168,8 @@ class BaseAgent:
 
         self._noop_action_dict = {k: v * 0 for k, v in self.action.items()}
 
-        verbose = False
+        # verbose = False
+        verbose = True
         if verbose:
             print(self.name, self.idx, "constructed action map:")
             for k, v in self.single_action_map.items():
@@ -380,7 +381,7 @@ class BaseAgent:
             return self.action.get(matching_names[0], None)
         return [self.action.get(m, None) for m in matching_names]
 
-    def set_component_action(self, component_name, action):
+    def set_component_action(self, component_name: str, action: int):
         """Set the action(s) taken for component_name component."""
         if component_name not in self.action:
             raise KeyError(
@@ -404,7 +405,7 @@ class BaseAgent:
                     component, np.floor(np.random.rand(*d_array.shape) * d_array)
                 )
 
-    def parse_actions(self, actions):
+    def parse_actions(self, actions: list[int]):
         """Parse the actions array to fill each component's action buffers."""
         if self.multi_action_mode:
             assert len(actions) == self._unique_actions

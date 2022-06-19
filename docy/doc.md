@@ -23,8 +23,8 @@
     - WoodSourceBlock
     - StoneSourceBlock
   - Resource
-    - Stone
-    - Wood
+    - Stone (also is one of the commodities)
+    - Wood (also is one of the commodities)
     - Coin
 
 
@@ -37,10 +37,15 @@
   - multi_action_mode_agents: bool
   - multi_action_mode_planner: bool
   - components: list[Component]
+  - components_dim: dict[str: Component]
   - resources: list[str]
   - landmarks: list[str]
   - endogenous: list[str]
   - all_agents: list[BaseAgent]
+  - dense_log
+  - replay_log
+  - previous_episode_dense_log
+  - previous_episode_replay_log
   - world: World
     - world_size: tuple
     - n_agents: int
@@ -49,6 +54,8 @@
     - resources: list[str]
     - landmarks: list[str]
     - agents: list[BasicMobileAgent]
+    - planner: BasicPlanner
+    - loc_map: ndarray
     - maps: Maps
       - _map: dict[Entity: ndarray]
       - _map: dict[Entity: dict["owner": ndarray, "health": ndarray]]
@@ -61,12 +68,6 @@
       - _private: list[str(Landmark)]
       - _public: list[str(Landmark)]
       - _private_landmark_types == _private
-    - planner: BasicPlanner
-    - loc_map: ndarray
-  - dense_log
-  - replay_log
-  - previous_episode_dense_log
-  - previous_episode_replay_log
 
 - LayoutFromFile
   - layout_specs
@@ -76,8 +77,9 @@
   - agent_starting_pos
 
 - BaseAgent
-  - action: dict
-  - action_dim: dict
+  - action: dict[str(component_name): action_n]
+  - action_dim: dict[str(component_name): n_actions]
+  - single_action_map: dict[int: list(str(component_name): action_n)]
   - state: dict(loc=[0, 0], inventory={}, escrow={}, endogenous={})
   - idx: int or str
   - action_spaces: int or ndarray
@@ -110,8 +112,8 @@
   - move_labor: float
   - collect_labor: float
 
-- ContinuousDoubleAuction   - 이 객체를 agent마다 따로따로 가지고 있는지 확인
-  - n_actions: list[(str, int)]
+- ContinuousDoubleAuction
+  - n_actions: list[tuple(str, int)]
   - order_labor: float
   - max_bid_ask: int
   - price_floor: int
@@ -119,12 +121,17 @@
   - order_duration: int
   - max_num_orders: int
   - commodities: list[Resource]
-  - asks: dict[Resource: dict[str: int]]
-  - bids: dict[Resource: dict[str: int]]
+  - asks: dict[Resource: list[dict{"seller": agent.idx, "ask": int(min_income), "ask_lifetime": 0}]]
+    - ask 호가 instances
+  - bids: dict[Resource: list[dict{"buyer": agent.idx, "bid": int(max_payment), "bid_lifetime": 0}]]
+    - bid 호가 instances
   - n_orders: dict[Resource: dict[int(agent_idx): int]]
   - price_history: dict[Resource: dict[int(agent_idx): ndarray]]
-  - bid_hists
-  - ask_hists
+    - 상한가부터 하한가 내에서 가격별로 자신이 판매한 횟수
+  - ask_hists: dict[Resource: dict[int(agent_idx): ndarray]]
+    - resouce별 agent별 ask 호가 현황
+  - bid_hists: dict[Resource: dict[int(agent_idx): ndarray]]
+    - resouce별 agent별 bid 호가 현황
 
 - Resource(Wood, Stone, Coin): static class
   - name: str
@@ -201,6 +208,15 @@ env = foundation.scenarios.simple_wood_and_stone.layout_from_file.LayoutFromFile
 ```
 
 
+### env.\__init\__()
+foundation.base.base_env.BaseEnvironment.reset()
+
+- Initialize members
+- agent.register_*()
+  - agent.register_components()
+    - agent._incorporate_component()
+
+
 ### env.reset()
 ```pycon
 obs = env.reset()
@@ -216,14 +232,14 @@ foundation.base.base_env.BaseEnvironment.reset()
 - self.additional_reset_steps() - optional
   - implement at layout_from_file.py
 - self.components.reset()
-  - ............................................................................
-- self.all_agents.reset()
-  - ............................................................................
+  - component.additional_reset_steps()
+- self.all_agents.reset_actions()
 - obs = self._generate_observations()
   - obs = {'0': {}, '1': {}, '2': {}, '3': {}, 'p': {}}
   - self.generate_observations()
     - implement at layout_from_file.py
-    - 
+  - components.obs()
+    - components.generate_observations()
 
 
 ### env.step()
@@ -232,8 +248,11 @@ obs = env.step(actions)
 ```
 
 - self.all_agents.parse_actions(agent_actions)
+  - set actions
 - self.components.step()
+  - take actions
 - self.scenario_step()
+  - spawn resources
 - obs = self._generate_observations()
 - rew = self._generate_rewards()
 - done = {"\__all\__": self.world.timestep >= self._episode_length}

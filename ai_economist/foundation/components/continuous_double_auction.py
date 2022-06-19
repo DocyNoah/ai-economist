@@ -515,6 +515,7 @@ class ContinuousDoubleAuction(BaseComponent):
             full_asks = self.available_asks(c, agent=None)
             full_bids = self.available_bids(c, agent=None)
 
+            # observation: ContinuousDoubleAuction-*
             obs[world.planner.idx].update(
                 {
                     "market_rate-{}".format(c): market_rate,

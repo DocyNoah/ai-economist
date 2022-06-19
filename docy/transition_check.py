@@ -10,7 +10,7 @@ def main(env_config):
 
     env = foundation.make_env_instance(**env_config)
     obs = env.reset(force_dense_logging=False)
-    print_type(obs)
+    # print_type(obs)
     for t in range(10000):
         actions = sample_random_actions(env, obs)
         obs, rew, done, info = env.step(actions)

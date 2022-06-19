@@ -439,6 +439,7 @@ class LayoutFromFile(BaseEnvironment):
         agent_idx_maps += 2
         agent_idx_maps[agent_idx_maps == 1] = 0
 
+        # observation: world-loc-*
         agent_locs = {
             str(agent.idx): {
                 "loc-row": agent.loc[0] / self.world_size[0],
@@ -446,13 +447,14 @@ class LayoutFromFile(BaseEnvironment):
             }
             for agent in self.world.agents
         }
+
+        # observation: world-inventory-*
         agent_invs = {
             str(agent.idx): {
                 "inventory-" + k: v * self.inv_scale for k, v in agent.inventory.items()
             }
             for agent in self.world.agents
         }
-
         obs[self.world.planner.idx] = {
             "inventory-" + k: v * self.inv_scale
             for k, v in self.world.planner.inventory.items()
@@ -464,6 +466,8 @@ class LayoutFromFile(BaseEnvironment):
 
         # Mobile agents see the full map. Convey location info via one-hot map channels.
         if self._full_observability:
+            # observation: world-map
+            # observation: world-idx_map
             for agent in self.world.agents:
                 my_map = np.array(agent_idx_maps)
                 my_map[my_map == int(agent.idx) + 2] = 1
