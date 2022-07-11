@@ -8,21 +8,15 @@ def main(env_config, plot_every, show, save):
     fig, ax = plt.subplots(1, 1, figsize=(10, 10))
 
     env = foundation.make_env_instance(**env_config)
-    ptr_env_init = env
     obs = env.reset(force_dense_logging=False)
-    ptr_env_reset = env
 
     for t in range(env.episode_length):
         actions = sample_random_actions(env, obs)
         obs, rew, done, info = env.step(actions)
-        ptr_env_step = env
 
-    print(ptr_env_init)
-    print(ptr_env_reset)
-    print(ptr_env_step)
-    #     if ((t + 1) % plot_every) == 0:
-    #         do_plot(env, ax, fig, t, show, save)
-    #
+        if ((t + 1) % plot_every) == 0:
+            do_plot(env, ax, fig, t, show, save)
+
     # if ((t + 1) % plot_every) != 0:
     #     do_plot(env, ax, fig, t, show, save)
 
@@ -76,10 +70,10 @@ if __name__ == "__main__":
         'flatten_masks': True,
     }
 
-    plot_every = 100
+    plot_every = 20
     show = True
     # show = False
     # save = True
-    save = False
+    save = True
 
     main(env_config, plot_every, show, save)

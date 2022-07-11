@@ -133,7 +133,7 @@ def do_plot(env, ax, fig, t, show=True, save=False):
         fig.show()
 
     if save:
-        fig.savefig(fname="fig_out/{}_{}.png".format(now, t))
+        fig.savefig(fname="fig_out/{}_n{}.png".format(now, t))
 
 
 def plot_log_state(dense_log, t, ax=None, remap_key=None):
